@@ -13,11 +13,14 @@ celery = Celery(
 
 @celery.task
 def download(url):
-    # sleep(100)
-    response = requests.get(url)
-    data = response.content
     id = celery.current_task.request.id
-    hash = md5(data).hexdigest()
-    file_hash = FileHash(id=id, hash=hash, url=url)
+    file_hash = FileHash(id=id, url=url)
     db.session.add(file_hash)
     db.session.commit()
+
+    sleep(100)
+    response = requests.get(url)
+    data = response.content
+    file_hash.hash = md5(data).hexdigest()
+    db.session.commit()
+
