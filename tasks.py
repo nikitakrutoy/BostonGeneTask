@@ -1,6 +1,6 @@
 from celery import Celery
 from time import sleep
-from app import db
+from main import db
 from models import FileHash
 from hashlib import md5
 import requests
@@ -18,7 +18,6 @@ def download(url):
     db.session.add(file_hash)
     db.session.commit()
 
-    sleep(100)
     response = requests.get(url)
     data = response.content
     file_hash.hash = md5(data).hexdigest()
