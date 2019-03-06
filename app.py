@@ -10,6 +10,12 @@ db = SQLAlchemy(app)
 from models import *
 db.create_all()
 
+
+@app.route("/", methods=["get"])
+def home():
+    return "Hello World!"
+
+
 @app.route("/submit", methods=["post"])
 def submit():
     url = request.form["url"]
@@ -18,10 +24,10 @@ def submit():
 
 @app.route("/check", methods=["get"])
 def check():
-    id = request.args.get("id")
+    id = request.args.get("id", None)
     state = tasks.celery.AsyncResult(id).state
     if state == "SUCCESS":
-        filehash = FileHash.query.get(id)
+        filehash = FileHash.query.get_or_404(id)
         return jsonify(
             {
                 "id": id,
@@ -30,11 +36,11 @@ def check():
                 "url": filehash.url,
             }
         )
-    if state == "FAILURE":
+    elif state == "FAILURE":
         return jsonify(
             {
                 "status": state,
-                "error": "Probably wrong url :)",
+                "error": "Probably wrong url :(",
             }
         )        
     else:
