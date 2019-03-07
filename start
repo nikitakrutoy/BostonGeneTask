@@ -1,0 +1,7 @@
+#!/bin/sh
+
+gunicorn main:app -b 127.0.0.1:8008  -w 1 --access-logfile /tmp/log/gunicorn/access_log_bosoton_gene -t 100 --graceful-timeout 100& 
+echo $! > gunicorn.pid 
+celery -A tasks worker --loglevel=info& 
+echo $! > celery.pid
+
